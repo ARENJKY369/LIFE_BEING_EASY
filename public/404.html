@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LifePlanner OS - Redirecting</title>
+    <script>
+      // GitHub Pages SPA hack + HashRouter fallback
+      // If using HashRouter, redirect to /#/path
+      (function() {
+        var l = window.location;
+        // If already has hash, keep it
+        if (l.hash && l.hash !== '#/') {
+          l.replace(l.pathname.split('/').slice(0, -1).join('/') + '/#' + l.pathname + l.search);
+          return;
+        }
+        // Preserve path as hash route
+        var path = l.pathname.replace('/LIFE_BEING_EASY', '').replace(/^\/+/, '');
+        if (path && path !== 'index.html' && path !== '404.html') {
+          var newUrl = l.protocol + '//' + l.host + l.pathname.split('/').slice(0, -1).join('/') + '/#/' + path + l.search;
+          l.replace(newUrl);
+        } else {
+          var base = l.pathname.split('/').slice(0, -1).join('/') + '/';
+          l.replace(l.protocol + '//' + l.host + base + '#/');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div style="font-family:system-ui;padding:24px;text-align:center;">
+      <h2>Redirecting to LifePlanner OS...</h2>
+      <p>If not redirected, <a href="./#/">click here</a>.</p>
+    </div>
+  </body>
+</html>
