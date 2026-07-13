@@ -102,6 +102,16 @@ export default function CurrentTask() {
     }
   };
 
+  if (tasks === undefined) {
+    return (
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="animate-pulse space-y-4 w-full max-w-md">
+          <div className="h-32 bg-zinc-200 dark:bg-zinc-800 rounded-[2rem]"></div>
+          <div className="h-12 bg-zinc-200 dark:bg-zinc-800 rounded-xl"></div>
+        </div>
+      </div>
+    );
+  }
   if (!tasks) return null;
 
   if (!activeTask && !nextTask) {

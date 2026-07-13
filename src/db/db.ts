@@ -54,7 +54,55 @@ export class LifePlannerDB extends Dexie {
       dailyLogs: 'date',
       ruleStates: 'id'
     });
+
+    // Handle blocked upgrade - common cause of hang on some browsers
+    this.on('blocked', () => {
+      console.warn('LifePlannerDB blocked - close other tabs with this app');
+    });
   }
 }
 
 export const db = new LifePlannerDB();
+
+// Utility: check IndexedDB availability (fails in some private mode / Firefox)
+export function isIndexedDBAvailable(): boolean {
+  try {
+    if (typeof window === 'undefined') return false;
+    if (!window.indexedDB) return false;
+    // Safari private mode test
+    const testKey = '__idb_test__';
+    window.localStorage.setItem(testKey, 'test');
+    window.localStorage.removeItem(testKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Ensure DB can open - returns promise that rejects quickly if blocked
+export async function ensureDBReady(timeoutMs = 5000): Promise<void> {
+  if (!isIndexedDBAvailable()) {
+    throw new Error('IndexedDB is not available in this browser context. Disable private mode and allow storage.');
+  }
+
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('IndexedDB open timeout - storage may be blocked')), timeoutMs)
+  );
+
+  await Promise.race([db.open(), timeout]);
+}
+
+// Safe reset for when user stuck on loading screen
+export async function resetDB(): Promise<void> {
+  try {
+    await db.delete();
+    localStorage.clear();
+    sessionStorage.clear();
+    // Re-open fresh
+    await db.open();
+  } catch (e) {
+    console.error('resetDB failed', e);
+    // Force hard reload clearing
+    localStorage.clear();
+  }
+}

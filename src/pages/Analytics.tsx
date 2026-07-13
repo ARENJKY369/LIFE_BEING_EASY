@@ -5,22 +5,29 @@ import { format, subDays } from 'date-fns';
 import { Target, Zap, Trophy, TrendingUp } from 'lucide-react';
 
 export default function Analytics() {
-  const logs = useLiveQuery(() => db.dailyLogs.toArray());
-  const tasks = useLiveQuery(() => db.tasks.toArray());
+  const logs = useLiveQuery(() => db.dailyLogs.toArray(), []);
+  const tasks = useLiveQuery(() => db.tasks.toArray(), []);
 
-  if (!logs || !tasks) return null;
+  if (logs === undefined || tasks === undefined) {
+    return (
+      <div className="p-6 max-w-5xl mx-auto">
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3"></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1,2,3,4].map(i => <div key={i} className="h-24 bg-zinc-200 dark:bg-zinc-800 rounded-2xl"></div>)}
+          </div>
+          <div className="h-72 bg-zinc-200 dark:bg-zinc-800 rounded-3xl"></div>
+        </div>
+      </div>
+    );
+  }
 
-  // Let's create some dummy logs if none exist for chart demo, or just use real data.
-  // Actually, since it's a real app, we only show real data.
   const chartData = Array.from({ length: 7 }).map((_, i) => {
     const d = subDays(new Date(), 6 - i);
     const dateStr = format(d, 'yyyy-MM-dd');
     const log = logs.find(l => l.date === dateStr);
-    
-    // Also check tasks directly if log isn't created yet for today
     const dayTasks = tasks.filter(t => t.date === dateStr && t.status === 'completed');
     const studyHours = dayTasks.filter(t => t.category === 'learning').reduce((acc, t) => acc + t.duration, 0) / 60;
-
     return {
       day: format(d, 'EEE'),
       studyHours: log ? log.studyHours : studyHours,

@@ -1,0 +1,4 @@
+# Netlify SPA fallback - HashRouter doesn't need but keep for safety if BrowserRouter used
+/*    /index.html   200
+
+# For Cloudflare / Vercel style: handled by vite config navigateFallback
