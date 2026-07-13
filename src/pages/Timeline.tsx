@@ -6,28 +6,14 @@ import clsx from 'clsx';
 
 export default function Timeline() {
   const today = format(new Date(), 'yyyy-MM-dd');
-  const tasks = useLiveQuery(() => db.tasks.where('date').equals(today).sortBy('order'), [today]);
-  const settings = useLiveQuery(() => db.settings.get(1), []);
+  const tasks = useLiveQuery(() => db.tasks.where('date').equals(today).sortBy('order'));
+  const settings = useLiveQuery(() => db.settings.get(1));
 
-  if (tasks === undefined || settings === undefined) {
-    return (
-      <div className="p-6 max-w-3xl mx-auto">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2"></div>
-          <div className="space-y-3">
-            {[1,2,3,4,5].map(i => <div key={i} className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded-2xl"></div>)}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!settings) {
-    return <div className="p-6 text-center text-zinc-500">Setup required.</div>;
-  }
+  if (!tasks || !settings) return <div className="p-6">Loading...</div>;
 
   const wakeUpTime = parse(settings.wakeUpTime, 'HH:mm', new Date());
   
+  // Calculate running times
   let currentTimeMarker = wakeUpTime;
 
   return (
@@ -38,7 +24,7 @@ export default function Timeline() {
       </div>
 
       <div className="relative border-l-2 border-zinc-200 dark:border-zinc-800 ml-4 pl-8 py-4 space-y-8">
-        {tasks?.map((task) => {
+        {tasks.map((task) => {
           const startTime = new Date(currentTimeMarker);
           currentTimeMarker = addMinutes(currentTimeMarker, task.duration);
 
@@ -48,6 +34,7 @@ export default function Timeline() {
 
           return (
             <div key={task.id} className={clsx("relative", (isCompleted || isSkipped) && "opacity-60")}>
+              {/* Timeline dot */}
               <div className="absolute -left-[41px] top-1 bg-[var(--background)] p-1">
                 {isCompleted ? <CheckCircle2 size={24} className="text-green-500 fill-green-500/20" /> :
                  isActive ? <PlayCircle size={24} className="text-blue-500 fill-blue-500/20" /> :
@@ -74,7 +61,7 @@ export default function Timeline() {
           );
         })}
 
-        {tasks?.length === 0 && (
+        {tasks.length === 0 && (
           <div className="text-[var(--text-muted)] italic">No tasks scheduled for today.</div>
         )}
       </div>

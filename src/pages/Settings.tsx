@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, resetDB } from '../db/db';
+import { db } from '../db/db';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { Plus, Trash2, Save, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Save } from 'lucide-react';
 
 export default function Settings() {
-  const settings = useLiveQuery(() => db.settings.get(1), []);
+  const settings = useLiveQuery(() => db.settings.get(1));
   const [saved, setSaved] = useState(false);
 
   const { register, control, handleSubmit, reset } = useForm();
@@ -15,6 +15,7 @@ export default function Settings() {
     name: 'learningGoals'
   });
 
+  // Init form
   useEffect(() => {
     if (settings) {
       reset({
@@ -24,20 +25,7 @@ export default function Settings() {
     }
   }, [settings, reset]);
 
-  if (settings === undefined) {
-    return (
-      <div className="p-6 max-w-3xl mx-auto">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3"></div>
-          <div className="h-64 bg-zinc-200 dark:bg-zinc-800 rounded-3xl"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!settings) {
-    return <div className="p-6 text-center text-zinc-500">No settings found. Please complete setup.</div>;
-  }
+  if (!settings) return null;
 
   const onSubmit = async (data: any) => {
     await db.settings.update(1, {
@@ -49,16 +37,8 @@ export default function Settings() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleHardReset = async () => {
-    if (confirm('Are you sure? This will delete all tasks and settings. This cannot be undone.')) {
-      await resetDB();
-      window.location.hash = '#/setup';
-      window.location.reload();
-    }
-  };
-
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-8 pb-24">
+    <div className="p-6 max-w-3xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Settings</h1>
         <p className="text-[var(--text-muted)]">Manage your OS preferences.</p>
@@ -144,16 +124,6 @@ export default function Settings() {
           <Save size={20} /> {saved ? 'Saved!' : 'Save Settings'}
         </button>
       </form>
-
-      <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-6 space-y-4">
-        <div className="flex items-center gap-2 text-red-500 font-semibold">
-          <AlertTriangle size={20} /> Danger Zone
-        </div>
-        <p className="text-sm text-zinc-500">If app is stuck on loading, reset will clear IndexedDB and force fresh start.</p>
-        <button onClick={handleHardReset} className="w-full py-3 bg-red-500 text-white rounded-xl font-medium">
-          Reset OS & Clear All Data
-        </button>
-      </div>
     </div>
   );
 }

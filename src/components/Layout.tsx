@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex flex-col w-64 border-r border-zinc-200 dark:border-zinc-800 bg-[var(--surface)] relative z-20">
         <div className="p-6 flex items-center gap-3">
-          <img src="./pwa-192x192.png" alt="LifePlanner OS" className="w-8 h-8 rounded-lg shadow-sm object-contain bg-[#0f1115]" />
+          <img src="/logo.png" alt="LifePlanner OS" className="w-8 h-8 rounded-lg shadow-sm" />
           <h1 className="text-xl font-bold tracking-tight">LifePlanner</h1>
         </div>
         <nav className="flex-1 px-4 space-y-2">

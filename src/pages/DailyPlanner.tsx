@@ -27,25 +27,7 @@ export default function DailyPlanner() {
 
   const [generating, setGenerating] = useState(false);
 
-  if (settings === undefined || todayTasks === undefined) {
-    return (
-      <div className="p-6 max-w-2xl mx-auto">
-        <div className="animate-pulse space-y-6">
-          <div className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded-3xl"></div>
-          <div className="h-96 bg-zinc-200 dark:bg-zinc-800 rounded-3xl"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <div className="p-6 text-center py-20">
-        <p className="text-zinc-500 mb-4">Setup required</p>
-        <button onClick={() => navigate('/setup')} className="px-6 py-3 bg-blue-600 text-white rounded-xl">Go Setup</button>
-      </div>
-    );
-  }
+  if (!settings) return null;
 
   const hasPlan = todayTasks && todayTasks.length > 0;
 

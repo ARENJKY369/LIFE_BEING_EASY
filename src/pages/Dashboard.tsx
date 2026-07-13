@@ -3,32 +3,10 @@ import { useLiveTimeEngine } from '../hooks/useLiveTimeEngine';
 import { Play, CheckCircle, Clock, BatteryCharging, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-function LoadingFallback() {
-  return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="animate-pulse space-y-6">
-        <div className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded-3xl"></div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-24 bg-zinc-200 dark:bg-zinc-800 rounded-2xl"></div>)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Dashboard() {
   const engine = useLiveTimeEngine();
 
-  if (engine === undefined) return <LoadingFallback />;
-  if (engine === null) {
-    return (
-      <div className="p-6 max-w-5xl mx-auto text-center py-20">
-        <h2 className="text-2xl font-bold mb-2">Setup Required</h2>
-        <p className="text-zinc-500 mb-6">Please complete initial setup.</p>
-        <Link to="/setup" className="px-6 py-3 bg-blue-600 text-white rounded-xl">Go to Setup</Link>
-      </div>
-    );
-  }
+  if (!engine) return <div className="p-6">Loading engine...</div>;
 
   const {
     currentTime,
@@ -44,6 +22,7 @@ export default function Dashboard() {
     isDayFinished
   } = engine;
 
+  // Format minutes helper
   const formatMins = (mins: number) => {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
@@ -54,6 +33,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
+      {/* Header */}
       <header className="flex justify-between items-end">
         <div>
           <p className="text-[var(--text-muted)] font-medium mb-1">Current Time</p>
@@ -74,6 +54,7 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* Motivational / Status Banner */}
       {isDayFinished ? (
         <div className="p-8 rounded-3xl bg-green-500/10 border border-green-500/20 flex flex-col gap-6">
           <div className="flex items-center gap-4">
@@ -121,6 +102,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Time Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard icon={Clock} label="Completed" value={formatMins(completedDuration)} />
         <StatCard icon={BatteryCharging} label="Remaining" value={formatMins(remainingDuration)} />
@@ -128,13 +110,16 @@ export default function Dashboard() {
         <StatCard icon={Zap} label="Free Time Left" value={formatMins(freeTimeLeft)} />
       </div>
 
+      {/* Current / Next Task Area */}
       {totalTasksCount > 0 && !isDayFinished && (
         <div className="grid md:grid-cols-2 gap-6">
+          {/* Current Task */}
           <div className="bg-[var(--surface)] rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full">Active Now</span>
               <span className="text-[var(--text-muted)] text-sm">{currentTask ? `${currentTask.duration} min` : ''}</span>
             </div>
+            
             {currentTask ? (
               <>
                 <h2 className="text-2xl font-bold mb-2">{currentTask.title}</h2>
@@ -158,6 +143,7 @@ export default function Dashboard() {
             )}
           </div>
 
+          {/* Next Task Preview */}
           <div className="bg-[var(--surface)] rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col shadow-sm opacity-80">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full">Up Next</span>
